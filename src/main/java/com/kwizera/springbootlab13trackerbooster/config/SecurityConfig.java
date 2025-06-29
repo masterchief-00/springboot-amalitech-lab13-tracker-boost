@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/h2-console/**", "/auth/login", "/auth/registerAdmin", "/oauth2/**", "/public", "/error", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/", "/h2-console/**", "/auth/login", "/auth/registerAdmin", "/oauth2/**", "/public", "/error", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**","/actuator/**").permitAll()
                         .requestMatchers("/api/admin/**", "/auth/register/**").hasRole("ADMIN")
                         .requestMatchers("/api/projects/**").hasAnyRole("MANAGER", "DEVELOPER", "CONTRACTOR")
                         // All other requests need authentication
