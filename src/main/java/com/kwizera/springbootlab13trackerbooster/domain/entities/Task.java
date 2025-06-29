@@ -1,8 +1,11 @@
 package com.kwizera.springbootlab13trackerbooster.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kwizera.springbootlab13trackerbooster.domain.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Hibernate;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -31,10 +34,14 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
+    @JsonBackReference("project-task")
+    @JsonIgnore
     private Project project;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "developer_id", nullable = false)
+    @JsonBackReference("user-task")
+    @JsonIgnore
     private User developer;
 
     @Column(name = "created_at", nullable = false)
@@ -45,7 +52,7 @@ public class Task {
 
     @PrePersist
     protected void OnCreate() {
-        this.status = TaskStatus.UN_ASSIGNED;
+        this.status = TaskStatus.PENDING;
         this.createdAt = LocalDate.now();
         this.updatedAt = LocalDate.now();
     }
@@ -53,5 +60,10 @@ public class Task {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDate.now();
+    }
+
+    @PostLoad
+    public void initializationForCache() {
+        if (project != null) Hibernate.initialize(project);
     }
 }

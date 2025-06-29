@@ -9,9 +9,12 @@ import com.kwizera.springbootlab13trackerbooster.repositories.UserRepository;
 import com.kwizera.springbootlab13trackerbooster.services.SkillServices;
 import com.kwizera.springbootlab13trackerbooster.services.UserServices;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,6 +25,7 @@ public class UserServicesImpl implements UserServices {
     private final UserRepository userRepository;
     private final SkillServices skillServices;
 
+    @CacheEvict(value = "users", allEntries = true)
     @Override
     public User register(User user) throws DuplicateRecordException {
         Optional<User> userFound = findUserByEmail(user.getEmail());
@@ -61,11 +65,16 @@ public class UserServicesImpl implements UserServices {
         return userRepository.findById(id);
     }
 
+    @Cacheable(value = "users",
+            keyGenerator = "pageableCacheKeyGenerator",
+            unless = "#result.isEmpty()")
+    @Transactional(readOnly = true)
     @Override
     public Page<User> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
     }
 
+    @CacheEvict(value = "users", allEntries = true)
     @Override
     public User updateUser(User user, List<String> skillSet) throws EntityNotFoundException {
         Set<Skill> userSkills = skillSet.stream()

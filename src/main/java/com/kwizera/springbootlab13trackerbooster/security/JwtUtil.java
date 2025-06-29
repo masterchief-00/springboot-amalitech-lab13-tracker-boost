@@ -1,6 +1,7 @@
 package com.kwizera.springbootlab13trackerbooster.security;
 
 import com.kwizera.springbootlab13trackerbooster.domain.entities.User;
+import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -16,11 +17,15 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
-    @Value("${jwt.secret}")
-    private String secret;
+    Dotenv dotenv = Dotenv.load();
+    private final String secret;
 
-    @Value("${jwt.expiration}")
-    private int jwtExpirationInSeconds;
+    private final int jwtExpirationInSeconds;
+
+    public JwtUtil() {
+        this.secret = dotenv.get("JWT_SECRET");
+        this.jwtExpirationInSeconds = Integer.parseInt(dotenv.get("JWT_EXPIRATION"));
+    }
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());

@@ -25,11 +25,14 @@ public class EntityToDTO {
     }
 
     public static TaskDTO taskEntityToDTO(Task task) {
+
+        String projectName = task.getProject() != null ? task.getProject().getName() : "-";
+
         return TaskDTO.builder()
                 .id(task.getId())
                 .title(task.getTitle())
                 .description(task.getDescription())
-                .projectName(task.getProject().getName())
+                .projectName(projectName)
                 .status(task.getStatus())
                 .build();
     }
