@@ -12,7 +12,10 @@ import com.kwizera.springbootlab13trackerbooster.services.ProjectServices;
 import com.kwizera.springbootlab13trackerbooster.services.TaskServices;
 import com.kwizera.springbootlab13trackerbooster.services.UserServices;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,11 +28,14 @@ public class TaskServicesImpl implements TaskServices {
     private final ProjectServices projectServices;
     private final UserServices userServices;
 
+    @Cacheable(value = "tasks", unless = "#result.isEmpty()")
+    @Transactional(readOnly = true)
     @Override
     public List<Task> findAll(UUID userId) {
         return taskRepository.findByDeveloperId(userId);
     }
 
+    @CacheEvict(value = "tasks", allEntries = true)
     @Override
     public Task createTask(UUID projectId, UUID developerId, Task task) throws DuplicateRecordException, EntityNotFoundException {
         Optional<Task> taskFound = taskRepository.findByTitleIgnoreCaseAndProjectId(task.getTitle(), projectId);
@@ -51,6 +57,7 @@ public class TaskServicesImpl implements TaskServices {
         }
     }
 
+    @CacheEvict(value = "tasks", allEntries = true)
     @Override
     public Task updateTaskStatus(UUID taskId, TaskStatus newStatus) throws EntityNotFoundException {
         Optional<Task> taskFound = taskRepository.findById(taskId);
@@ -64,6 +71,7 @@ public class TaskServicesImpl implements TaskServices {
         return taskRepository.save(task);
     }
 
+    @CacheEvict(value = "tasks", allEntries = true)
     @Override
     public Task updateTask(UUID taskId, Task task) throws EntityNotFoundException {
         Optional<Task> taskFound = taskRepository.findById(taskId);
@@ -87,6 +95,7 @@ public class TaskServicesImpl implements TaskServices {
         return taskRepository.save(updatedTask);
     }
 
+    @CacheEvict(value = "tasks", allEntries = true)
     @Override
     public void deleteTask(UUID taskId) {
         Optional<Task> taskFound = taskRepository.findById(taskId);

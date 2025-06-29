@@ -1,5 +1,7 @@
 package com.kwizera.springbootlab13trackerbooster.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,6 +25,7 @@ public class Skill {
 
     @ManyToMany(mappedBy = "skills")
     @Builder.Default
+    @JsonIgnore
     private Set<User> developers = new HashSet<>();
 
     @Column(name = "created_at", nullable = false)

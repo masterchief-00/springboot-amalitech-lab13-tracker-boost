@@ -1,9 +1,15 @@
 package com.kwizera.springbootlab13trackerbooster.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.kwizera.springbootlab13trackerbooster.domain.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -14,7 +20,10 @@ import java.util.*;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class User implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -37,13 +46,18 @@ public class User {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = true)
+    @JsonBackReference("project-user")
+    @JsonIgnore
     private Project project;
 
     @ManyToMany
     @JoinTable(name = "developer_skills", joinColumns = @JoinColumn(name = "developer_id"), inverseJoinColumns = @JoinColumn(name = "skill_id"))
+    @JsonIgnore
     private Set<Skill> skills = new HashSet<>();
 
-    @OneToMany(mappedBy = "developer")
+    @OneToMany(mappedBy = "developer", cascade = {CascadeType.MERGE})
+    @JsonManagedReference("user-task")
+    @JsonIgnore
     private Set<Task> tasks = new HashSet<>();
 
     @Column(name = "created_at", nullable = false)

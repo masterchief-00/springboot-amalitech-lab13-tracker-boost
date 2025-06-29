@@ -1,5 +1,7 @@
 package com.kwizera.springbootlab13trackerbooster.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,12 +31,16 @@ public class Project {
     @Column(name = "deadline", nullable = false)
     private LocalDate deadline;
 
-    @OneToMany(mappedBy = "project", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "project", cascade = {CascadeType.MERGE})
     @Builder.Default
+    @JsonManagedReference("project-user")
+    @JsonIgnore
     private List<User> developers = new ArrayList<>();
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonManagedReference("project-task")
+    @JsonIgnore
     private List<Task> tasks = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false)

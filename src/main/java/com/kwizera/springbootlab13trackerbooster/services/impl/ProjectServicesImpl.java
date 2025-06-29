@@ -9,6 +9,8 @@ import com.kwizera.springbootlab13trackerbooster.repositories.ProjectRepository;
 import com.kwizera.springbootlab13trackerbooster.services.ProjectServices;
 import com.kwizera.springbootlab13trackerbooster.services.UserServices;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,11 +24,16 @@ public class ProjectServicesImpl implements ProjectServices {
     private final ProjectRepository projectRepository;
     private final UserServices userServices;
 
+    @Cacheable(value = "projects",
+            keyGenerator = "pageableCacheKeyGenerator",
+            unless = "#result.isEmpty()")
+    @Transactional(readOnly = true)
     @Override
     public Page<Project> getProjects(Pageable pageable) {
         return projectRepository.findAll(pageable);
     }
 
+    @CacheEvict(value = "projects", allEntries = true)
     @Transactional
     @Override
     public Project createProject(Project project, Set<UUID> developerIds) throws DuplicateRecordException {
@@ -51,6 +58,7 @@ public class ProjectServicesImpl implements ProjectServices {
         return projectRepository.save(project);
     }
 
+    @CacheEvict(value = "projects", allEntries = true)
     @Override
     public Project updateProject(UUID projectId, Project project, Set<UUID> developerIds) throws EntityNotFoundException {
         Optional<Project> projectFound = projectRepository.findById(projectId);
@@ -78,6 +86,7 @@ public class ProjectServicesImpl implements ProjectServices {
         return projectRepository.findById(projectId);
     }
 
+    @CacheEvict(value = "projects", allEntries = true)
     @Override
     public void deleteProject(UUID projectId) {
         Optional<Project> project = findProjectById(projectId);
