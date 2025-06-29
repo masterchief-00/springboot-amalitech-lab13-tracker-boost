@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  mongodb:
+    image: mongo:6
+    container_name: mongo_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - backend
+
+  app:
+    build: .
+    container_name: project_tracker_app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - mongodb
+    environment:
+      spring.datasource.url: ${DOCKER_DB_URL}
+      spring.datasource.username: ${DB_USER}
+      spring.datasource.password: ${DB_PASSWORD}
+      spring.data.mongodb.uri: ${DOCKER_MONGODB_URI}
+      spring.security.oauth2.client.registration.google.client-id: ${GOOGLE_AUTH_CLIENT_ID}
+      spring.security.oauth2.client.registration.google.client-secret: ${GOOGLE_AUTH_CLIENT_SECRET}
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+  mongo_data:
+
+networks:
+  backend:
