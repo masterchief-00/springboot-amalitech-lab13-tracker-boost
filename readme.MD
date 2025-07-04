@@ -75,3 +75,6 @@ throughput - 197.7/sec
    ```
 
 The app will start on - [http://localhost:8080](http://localhost:8080).
+
+## Demonstration video
+- [Video link](https://drive.google.com/file/d/1fd0QO_wSHk572xd-olRFTwvMzx85_Sl3/view?usp=sharing)
